@@ -1,0 +1,66 @@
+.sudoku-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 2px;
+  max-width: 540px;
+}
+.sudoku-cell {
+  width: 100%;
+  padding-top: 100%;
+  position: relative;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+.sudoku-cell input {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  font-size: 1.25rem; text-align: center; border: none; outline: none;
+}
+.sudoku-cell.block-right { border-right: 2px solid #333; }
+.sudoku-cell.block-bottom { border-bottom: 2px solid #333; }
+.sudoku-cell.block-left { border-left: 2px solid #333; }
+.sudoku-cell.block-top { border-top: 2px solid #333; }
+.legend-box { display:inline-block; width:16px; height:16px; margin-right:8px; vertical-align:middle; }
+.legend-box.assigned { background:#d1e7dd; }
+.legend-box.trying { background:#cfe2ff; }
+.legend-box.conflict { background:#f8d7da; }
+.cell-trying { background: #cfe2ff !important; }
+.cell-assigned { background: #d1e7dd !important; }
+.cell-conflict { background: #f8d7da !important; }
+@media (max-width: 767px) {
+  .sudoku-grid { max-width: 360px; }
+}
+.cell-assigned {
+  background-color: #d8f3dc !important; /* light green */
+}
+
+.cell-trying {
+  background-color: #dbe7ff !important; /* light blue */
+}
+
+.cell-conflict {
+  background-color: #ffd6d6 !important; /* light red/pink */
+}
+sudoku-cell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: center;
+  font-size: 18px;
+  outline: none;
+  background-color: white;
+}
+
+/* Highlight states */
+.sudoku-cell input.cell-assigned {
+  background-color: #d8f3dc !important; /* light green */
+}
+
+.sudoku-cell input.cell-trying {
+  background-color: #dbe7ff !important; /* light blue */
+}
+
+.sudoku-cell input.cell-conflict {
+  background-color: #ffd6d6 !important; /* light red/pink */
+}
