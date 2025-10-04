@@ -21,6 +21,7 @@ let original = []; // original puzzle snapshot
 let steps = []; // steps queue for visualization
 let running = false;
 let stopped = false;
+let stepIndex = 0;
 
 // build grid
 function buildGrid() {
@@ -128,17 +129,17 @@ function findMRV(board){
 // We'll record steps as objects {type: 'assign'|'unassign'|'try'|'conflict', r, c, val}
 function pushStep(step){ steps.push(step); }
 
-function visualizeSteps(){
-  let i = 0;
+function visualizeSteps(startIndex = 0){
+  stepIndex = startIndex;
   running = true;
   stopped = false;
 
   function tick(){
-    if (stopped || i >= steps.length){
+    if (stopped || stepIndex >= steps.length){
       running = false;
       return;
     }
-    const s = steps[i++];
+    const s = steps[stepIndex++];
     const el = cells[s.r*9 + s.c];
 
     // clear old highlights
@@ -162,7 +163,6 @@ function visualizeSteps(){
   }
   tick();
 }
-
 
 
 // CSP + backtracking with MRV + forward checking
@@ -200,8 +200,8 @@ visualizeBtn.addEventListener('click', ()=>{
   snapshotOriginal();
   const copy = board.map(r=>r.slice());
   const ok = solveCSP(copy);
-  if (!ok){ alert('No solution found (visualizer).'); }
-  visualizeSteps();
+  if (!ok){ alert('No solution found (visualizer).'); return; }
+  visualizeSteps(0); // start from beginning
 });
 
 serverSolveBtn.addEventListener('click', async ()=>{
@@ -216,6 +216,20 @@ serverSolveBtn.addEventListener('click', async ()=>{
     if (!res.ok){ alert(data.error || 'Server failed to solve'); return; }
     setBoard(data.solution);
   } catch (e){ alert('Server error: '+e.message); }
+});
+
+stopBtn.addEventListener('click', () => {
+  if (running){
+    stopped = true;
+    running = false;
+  }
+});
+
+const playBtn = document.getElementById('playBtn');
+playBtn.addEventListener('click', () => {
+  if (!running && stopped && stepIndex < steps.length){
+    visualizeSteps(stepIndex); // resume from where stopped
+  }
 });
 
 resetBtn.addEventListener('click', ()=>{ if (running) return; resetToOriginal(); });
