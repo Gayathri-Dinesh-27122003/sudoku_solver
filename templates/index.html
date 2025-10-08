@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sudoku Solver — CSP + Backtracking Visualizer</title>
+    <title>SUDOKU SOLVER</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
   </head>
-  <body class="bg-light">
+  <body class="bg-dark">
     <div class="container py-4">
       <div class="row mb-3">
         <div class="col text-center">
-          <h1>Sudoku Solver — CSP + Backtracking Visualizer</h1>
-          <p class="text-muted">Enter numbers (1–9). Empty cells = blank. Use the visualizer to watch backtracking.</p>
+          <h1 style="font-family: 'Poppins', sans-serif; font-size: 3rem;color: #66d4ff">
+            SUDOKU SOLVER </h1>
         </div>
       </div>
       <div class="row">
@@ -35,18 +35,22 @@
               <button id="playBtn" class="btn btn-success">Play</button>
             </div>
             <div class="mb-2">
-              <p><strong>Instructions:</strong> Click a cell and type 1–9 or use Backspace to clear. Press Solve (Visualize) to see each step. Reset returns to the original puzzle.</p>
+              <p><strong>Instructions:</strong> Click a cell and type a sudoku problem you want to solve.</p>
+              <p><strong>Solve (Visualize):</strong> Click this button to see the process of solving, at the pace you like using the speed bar.</p>
+              <p><strong>Solve (Fast - Server);</strong> Click this button to directly see the solution.</p>
+              <p><strong>Reset:</strong> Click this button to reset the sudoku to the problem.</p>
+              <p><strong>Clear:</strong> Click this button to clear the whole sudoku.</p>
+              <p><strong>Stop:</strong> Click this button to stop the solving process at any step.</p>
+              <p><strong>Play:</strong> Click this button to resume solving from where you stoped.</p>
             </div>
             <div>
               <h6>Legend</h6>
-              <div><span class="legend-box assigned"></span> Assigned</div>
-              <div><span class="legend-box trying"></span> Trying</div>
-              <div><span class="legend-box conflict"></span> Conflict / Backtrack</div>
+              <div><span class="legend-box assigned"></span> Assigned &nbsp;&nbsp;&nbsp;<span class="legend-box trying"></span> Trying &nbsp;&nbsp;&nbsp;
+                <span class="legend-box conflict"></span> Conflict</div>
             </div>
           </div>
         </div>
       </div>
-      <footer class="mt-4 text-center text-muted">Built with Flask + Bootstrap. CSP heuristics: MRV + forward checking.</footer>
     </div>
     <script src="/static/js/solver.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
