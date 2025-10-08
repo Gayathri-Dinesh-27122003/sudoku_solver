@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from copy import deepcopy
+from solver import solve
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -48,11 +49,12 @@ def solve_api():
     board = data.get('board', [])
     if not board or len(board) != 9:
         return jsonify({'error': 'invalid board'}), 400
-    board_copy = deepcopy(board)
-    success = solve_backtracking(board_copy)
-    if not success:
-        return jsonify({'error': 'no solution'}), 400
-    return jsonify({'solution': board_copy}), 200
+    try:
+        board_copy = deepcopy(board)
+        solution = solve(board_copy)   # ← calls CSP + backtracking solver
+        return jsonify({'solution': solution}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
