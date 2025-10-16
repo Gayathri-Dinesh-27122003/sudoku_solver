@@ -64,3 +64,8 @@ sudoku-cell input {
 .sudoku-cell input.cell-conflict {
   background-color: #ffd6d6 !important; /* light red/pink */
 }
+
+#grid.solved {
+  box-shadow: 0 0 15px 4px limegreen;
+  transition: box-shadow 0.5s ease;
+}
