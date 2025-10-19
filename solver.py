@@ -1,32 +1,33 @@
-# solver.py
-# Sudoku Solver using CSP + Backtracking with MRV + Forward Checking
+# Suduko solver
+# Algorithm used are CSP, Backtracking with MRV and Forward checking
 
+# Checks that the value is valid at r,c.
 def is_valid(board, r, c, val):
-    # Check row
+    # Checking row
     if val in board[r]:
         return False
-    # Check column
+    # Checking column
     for i in range(9):
         if board[i][c] == val:
             return False
-    # Check 3x3 block
+    # Checking 3x3 block
     start_r, start_c = (r // 3) * 3, (c // 3) * 3
     for i in range(start_r, start_r + 3):
         for j in range(start_c, start_c + 3):
             if board[i][j] == val:
                 return False
     return True
+    # Returns true if nothing fails.
 
-
+# Returns the list of valid numbers that can be placed at r,c.
 def get_domain(board, r, c):
-    """Get possible valid numbers for a cell."""
     if board[r][c] != 0:
         return []
     return [v for v in range(1, 10) if is_valid(board, r, c, v)]
 
-
+# Implementation of MRV.
+# It finds next empty cell with less number of possible valid number.
 def find_mrv(board):
-    """Minimum Remaining Values heuristic."""
     best = None
     min_domain = 10
     for r in range(9):
@@ -39,22 +40,22 @@ def find_mrv(board):
                     best = (r, c, domain)
                     min_domain = len(domain)
     return best
+    # If there is no possible valid number then it is deadend , backtracking will start.
 
-
+# Implementation of Forward Checking.
+# It places the number then ensures that there is no empty cell left with no valid number.
 def forward_check(board):
-    """Ensure all empty cells still have at least one valid value."""
     for r in range(9):
         for c in range(9):
             if board[r][c] == 0 and len(get_domain(board, r, c)) == 0:
                 return False
     return True
 
-
+# Implementation of recursive CSP and Backtracking.
 def solve_sudoku(board):
-    """Recursive CSP + backtracking solver."""
     mrv = find_mrv(board)
     if not mrv:
-        return True  # Solved
+        return True  # If there is no empty cell then the suduko is solved.
     r, c, domain = mrv
     if len(domain) == 0:
         return False
@@ -65,12 +66,13 @@ def solve_sudoku(board):
             if forward_check(board):
                 if solve_sudoku(board):
                     return True
-            board[r][c] = 0  # Backtrack
+            board[r][c] = 0  # Backtracking
     return False
+    # It returns true if there is solved.
 
-
+# It returns a solved suduko.
+# If there is no soluttion found then it raises an error.
 def solve(board):
-    """Entry point: returns solved board or raises ValueError."""
     from copy import deepcopy
     puzzle = deepcopy(board)
     if not solve_sudoku(puzzle):
