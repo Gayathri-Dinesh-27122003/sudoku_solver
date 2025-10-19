@@ -1,10 +1,13 @@
+# Libraries imported
 from flask import Flask, render_template, request, jsonify
 from copy import deepcopy
 from solver import solve
 import os
 
+# Creates the flask instance.
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+# It checks that a valid number can be entered at r,c.
 def is_valid(board, r, c, val):
     for j in range(9):
         if board[r][j] == val:
@@ -20,6 +23,7 @@ def is_valid(board, r, c, val):
                 return False
     return True
 
+# Finds empty cell and returns the location or none if the borad is full.
 def find_empty(board):
     for i in range(9):
         for j in range(9):
@@ -27,6 +31,7 @@ def find_empty(board):
                 return i, j
     return None
 
+# This is a simple backtracking.
 def solve_backtracking(board):
     empty = find_empty(board)
     if not empty:
@@ -40,6 +45,8 @@ def solve_backtracking(board):
             board[r][c] = 0
     return False
 
+# ROUTES
+# This is the front-end.
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -52,7 +59,7 @@ def solve_api():
         return jsonify({'error': 'invalid board'}), 400
     try:
         board_copy = deepcopy(board)
-        solution = solve(board_copy)   # ← calls CSP + backtracking solver
+        solution = solve(board_copy)   # calling CSP, backtracking solver.
         return jsonify({'solution': solution}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
