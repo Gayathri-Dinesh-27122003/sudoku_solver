@@ -1,1 +1,3 @@
+#Install requirements using the command
+# pip install -r requirements.txt
 Flask>=2.0
