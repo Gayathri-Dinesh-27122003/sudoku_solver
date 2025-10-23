@@ -75,6 +75,31 @@ def solve_sudoku(board):
 def solve(board):
     from copy import deepcopy
     puzzle = deepcopy(board)
+    # Validate the initial board for shape, value ranges and duplicates
+    def validate_board(b):
+        # Check shape
+        if not isinstance(b, list) or len(b) != 9:
+            raise ValueError('Board must be a 9x9 list')
+        for r in range(9):
+            if not isinstance(b[r], list) or len(b[r]) != 9:
+                raise ValueError('Board must be a 9x9 list')
+        # Check values and duplicates
+        for r in range(9):
+            for c in range(9):
+                val = b[r][c]
+                if not isinstance(val, int) or val < 0 or val > 9:
+                    raise ValueError(f'Invalid cell value at ({r},{c}): {val}')
+                if val != 0:
+                    # Temporarily clear the cell and check validity
+                    b[r][c] = 0
+                    try:
+                        if not is_valid(b, r, c, val):
+                            raise ValueError(f'Invalid board: duplicate value {val} at ({r},{c})')
+                    finally:
+                        b[r][c] = val
+
+    validate_board(puzzle)
+
     if not solve_sudoku(puzzle):
         raise ValueError("No valid Sudoku solution found")
     return puzzle

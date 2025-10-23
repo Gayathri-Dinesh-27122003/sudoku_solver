@@ -76,6 +76,69 @@ function setBoard(board) {
   }
 }
 
+// Client-side validation for logical duplicates and value ranges
+function validateBoard(board) {
+  if (!Array.isArray(board) || board.length !== 9) return 'Board must be 9x9';
+  for (let r = 0; r < 9; r++) {
+    if (!Array.isArray(board[r]) || board[r].length !== 9) return 'Board must be 9x9';
+    for (let c = 0; c < 9; c++) {
+      const val = board[r][c];
+      if (typeof val !== 'number' || !Number.isInteger(val) || val < 0 || val > 9) {
+        return { message: `Invalid value at (${r + 1},${c + 1}): ${val}`, cells: [[r, c]] };
+      }
+      if (val !== 0) {
+        // check row
+        for (let j = 0; j < 9; j++) if (j !== c && board[r][j] === val) return { message: `Duplicate value ${val} in row ${r + 1}`, cells: [[r, c], [r, j]] };
+        // check column
+        for (let i = 0; i < 9; i++) if (i !== r && board[i][c] === val) return { message: `Duplicate value ${val} in column ${c + 1}`, cells: [[r, c], [i, c]] };
+        // check box
+        const br = Math.floor(r / 3) * 3, bc = Math.floor(c / 3) * 3;
+        for (let i = br; i < br + 3; i++) {
+          for (let j = bc; j < bc + 3; j++) {
+            if ((i !== r || j !== c) && board[i][j] === val) return { message: `Duplicate value ${val} in 3x3 block starting at (${br + 1},${bc + 1})`, cells: [[r, c], [i, j]] };
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function clearCellStates() {
+  // remove any visual state classes from all cells
+  cells.forEach((el) => el.classList.remove('cell-conflict', 'cell-assigned', 'cell-trying'));
+}
+
+function highlightCells(coords) {
+  clearCellStates();
+  coords.forEach(([r, c]) => {
+    const el = cells[r * 9 + c];
+    if (el) el.classList.add('cell-conflict');
+  });
+}
+
+function showErrorInline(message, coords) {
+  const container = document.getElementById('errorContainer');
+  const text = document.getElementById('errorText');
+  if (container && text) {
+    text.textContent = message;
+    container.style.display = 'block';
+  } else {
+    alert(message);
+  }
+  if (coords && coords.length) highlightCells(coords);
+}
+
+function clearErrorInline() {
+  const container = document.getElementById('errorContainer');
+  const text = document.getElementById('errorText');
+  if (container && text) {
+    text.textContent = '';
+    container.style.display = 'none';
+  }
+  clearCellStates();
+}
+
 function snapshotOriginal() {
   original = readBoard().map(r => r.slice());
 }
@@ -192,9 +255,24 @@ visualizeBtn.addEventListener('click', () => {
   steps = [];
   const board = readBoard();
   snapshotOriginal();
+  // client-side validate before attempting to visualize
+  clearErrorInline();
+  const err = validateBoard(board);
+  if (err) {
+    const msg = typeof err === 'string' ? err : err.message;
+    const coords = err.cells || [];
+  showErrorInline(msg, coords);
+    return;
+  }
   const copy = board.map(r => r.slice());
   const ok = solveCSP(copy);
-  if (!ok) { alert('No solution found (visualizer).'); return; }
+
+  if (!ok) {
+  alert('No valid Sudoku solution exists!');
+    clearBoard(); // Clear after user closes alert
+    return;
+  }
+
   visualizeSteps(0);
 });
 
@@ -208,12 +286,27 @@ serverSolveBtn.addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ board })
     });
-    const data = await res.json();
-    if (!res.ok) { alert(data.error || 'Server failed to solve'); return; }
+
+  const data = await res.json();
+
+  // Always check if the backend failed or Sudoku unsolvable
+    if (!res.ok || data.error) {
+      const msg = data && data.error ? data.error : 'No valid Sudoku solution exists!';
+      // show inline error and highlight not attempted cells (server may not provide coords)
+  showErrorInline(msg, []);
+      return;
+    }
+
+    // clear previous errors/highlights on success
+    clearErrorInline();
+
+  // Set solved board
     setBoard(data.solution);
     snapshotOriginal();
   } catch (e) {
-    alert('Server error: ' + e.message);
+  // Even if Flask crashes or server not running
+  alert('No valid Sudoku solution exists!');
+    clearBoard();
   }
 });
 
@@ -230,11 +323,15 @@ playBtn.addEventListener('click', () => {
 // Reset and Clear
 resetBtn.addEventListener('click', () => {
   if (running) return;
-  resetToOriginal(); // ✅ fix: restores question, not blank grid
+  resetToOriginal(); // fix: restores question, not blank grid
+  clearErrorInline();
+  clearCellStates();
 });
 clearBtn.addEventListener('click', () => {
   if (running) return;
   clearBoard(); // clears everything intentionally
+  clearErrorInline();
+  clearCellStates();
 });
 
 // Speed display
